@@ -1,0 +1,288 @@
+%第一次
+%%所有函数
+%%算术均值滤波：
+function resultImage=sszzz(f,fsize1)
+[w,h]=size(f);
+image= f(:,:);
+fssize1=(fsize1-1)/2;
+resultImage = image;
+for x=1+fssize1:1:w-fssize1
+    for y=1+fssize1:1:w-fssize1
+        is=f(x-fssize1:1:x+fssize1,y-fssize1:1:y+fssize1);
+        resultImage(x,y)=sum(is(:))/numel(is); 
+    end
+end
+resultImage=uint8(resultImage);
+end
+%%几何均值滤波：
+function resultImage=jhjzz(f,fsize1)
+[w,h]=size(f);
+image= f(:,:);
+fssize1=(fsize1-1)/2;
+resultImage = image;
+for x=1+fssize1:1:w-fssize1
+    for y=1+fssize1:1:h-fssize1
+        is=f(x-fssize1:1:x+fssize1,y-fssize1:1:y+fssize1);
+        resultImage(x,y)=prod(prod(is(:)))^(1/numel(is)); 
+    end
+end
+resultImage=uint8(resultImage);
+end
+%%谐波均值滤波：
+function resultImage=xbjzz(f,fsize1)
+[w,h]=size(f);
+image= f(:,:);
+fssize1=(fsize1-1)/2;
+resultImage = image;
+for x=1+fssize1:1:w-fssize1
+    for y=1+fssize1:1:h-fssize1
+        is=f(x-fssize1:1:x+fssize1,y-fssize1:1:y+fssize1);
+         is=double(is);
+        is=1./is;
+        resultImage(x,y)=numel(is)/sum(is(:)); 
+    end
+end
+resultImage=uint8(resultImage);
+end
+%%逆谐波均值滤波：
+function resultImage=nxbzzz(f,Q1,fsize1)
+[w,h]=size(f);
+image= f(:,:);
+fssize1=(fsize1-1)/2;
+resultImage = image;
+for x=1+fssize1:1:w-fssize1
+    for y=1+fssize1:1:h-fssize1
+        is=f(x-fssize1:1:x+fssize1,y-fssize1:1:y+fssize1);
+        is=double(is);
+        resultImage(x,y) = sum(is(:).^(Q1+1))/sum(is(:).^(Q1));
+    end
+end
+resultImage=uint8(resultImage);
+end
+%%中值滤波：
+function I2=zzlbb(I,n)
+a=ones(n,n);
+p=size(I);   
+x1=double(I);
+x2=x1;
+for i=1:p(1)-n+1  
+    for j=1:p(2)-n+1   
+        c=x1(i:i+(n-1),j:j+(n-1));  
+        e=c(1,:);      
+        for u=2:n          
+            e=[e,c(u,:)];           
+        end
+        mm=median(e);    
+        x2(i+(n-1)/2,j+(n-1)/2)=mm;   
+    end
+end
+I2=uint8(x2);
+end
+%%最大值滤波：
+function resultImage=maxlbb(f,fsize1)
+[w,h]=size(f);
+image= f(:,:);
+fssize1=(fsize1-1)/2;
+resultImage = image;
+for x=1+fssize1:1:w-fssize1
+    for y=1+fssize1:1:h-fssize1
+        is=f(x-fssize1:1:x+fssize1,y-fssize1:1:y+fssize1);
+        temp = is(:);
+        resultImage(x,y)= max(temp);
+    end
+end
+resultImage=uint8(resultImage);
+end
+%%最小值滤波：
+function resultImage=minlbb(f,fsize1)
+[w,h]=size(f);
+image= f(:,:);
+fssize1=(fsize1-1)/2;
+resultImage = image;
+for x=1+fssize1:1:w-fssize1
+    for y=1+fssize1:1:h-fssize1
+        is=f(x-fssize1:1:x+fssize1,y-fssize1:1:y+fssize1);
+        temp = is(:);
+        resultImage(x,y)= min(temp);
+    end
+end
+resultImage=uint8(resultImage);
+end
+
+%%中点滤波：
+function resultImage=zdlbb(f,fsize1)
+[w,h]=size(f);
+image= f(:,:);
+fssize1=(fsize1-1)/2;
+resultImage = image;
+for x=1+fssize1:1:w-fssize1
+    for y=1+fssize1:1:h-fssize1
+        is=f(x-fssize1:1:x+fssize1,y-fssize1:1:y+fssize1);
+        temp = is(:);
+        resultImage(x,y)= (max(temp) + min(temp))/2;
+    end
+end
+resultImage=uint8(resultImage);
+end
+clc
+clear
+[Ij,map]=imread('lena.bmp');
+figure(1);
+subplot(2,3,1)
+imshow(Ij);
+title('原图');
+subplot(2,3,2)
+I1=imnoise(Ij,'gaussian',0,0.01);
+imshow(I1);
+title('gaussian噪声 均值0方差0.01');
+I2=imnoise(Ij,'gaussian',0,0.05);
+subplot(2,3,3)
+imshow(I2);
+title('gaussian噪声 均值0方差0.05');
+I3=imnoise(Ij,'gaussian',0,0.1);
+subplot(2,3,4)
+imshow(I3);
+title('gaussian噪声 均值0方差0.1');
+I4=imnoise(Ij,'gaussian',0.05,0.01);
+subplot(2,3,5)
+imshow(I4);
+title('gaussian噪声 均值0.05方差0.01');
+I5=imnoise(I,'gaussian',0.1,0.01);
+subplot(2,3,6)
+imshow(I5);
+title('gaussian噪声 均值0.1方差0.01');
+
+
+figure(2);
+subplot(2,3,1)
+imshow(I);
+title('原图');
+subplot(2,3,2)
+imshow(I1);
+title('gaussian噪声 均值0方差0.01');
+I2=sszzz(I1,3);
+subplot(2,3,3)
+imshow(I2); 
+title('算术均值滤波');
+I3=jhjzz(I1,3);
+subplot(2,3,4)
+imshow(I3); 
+title('几何均值滤波');
+I4=xbjzz(I1,3);
+subplot(2,3,5)
+imshow(I4); 
+title('谐波均值滤波');
+I5=nxbzzz(I1,1.5,3);
+subplot(2,3,6)
+imshow(I5); 
+title('逆谐波均值滤波');
+
+figure(3)
+subplot(2,3,1)
+imshow(I);
+title('原图');
+subplot(2,3,2)
+imshow(I1);
+title('gaussian噪声 均值0方差0.01');
+subplot(2,3,3)
+I6=zzlbb(I1,3);
+imshow(I6)
+title('中值滤波');
+I7=maxlbb(I1,3);
+subplot(2,3,4)
+imshow(I7); 
+title('最大值滤波');
+I8=minlbb(I1,3);
+subplot(2,3,5)
+imshow(I8); 
+title('最小值滤波');
+I9=zdlbb(I1,3);
+subplot(2,3,6)
+imshow(I9); 
+title('中点滤波');
+
+%第二次
+
+%在测图像lena图加入椒盐噪声
+%用学过的滤波器恢复图像bing在使用反谐波分析Q大于0和小于0的作用
+i=imread('lena.bmp');
+p22=imnoise(i,'salt & pepper',0.1);
+h=medfilt2(p2);
+n=5;
+h1=1/n^2.*ones(n,n);
+i22=conv2(double(i),double(h1),'same');
+i22=uint8(i2);
+
+
+figure(1);
+subplot(2,2,1)
+imshow(i);
+title('原始图像')
+subplot(2,2,2)
+imshow(p22);
+title('加椒盐噪声')
+subplot(2,2,3)
+imshow(h);
+title('中值滤波')
+subplot(2,2,4)
+imshow(i22);
+title('算术均值滤波')
+%第三次
+%%两个函数
+%维纳滤波器
+function  output=weinaa(img,G_freq,H,K)%返回滤波后图像空域数据
+[Row,Col]=size(img);
+F_freq=(conj(H)./(H.*conj(H)+K)).*G_freq;
+output=real(ifft2(F_freq));
+output=output(1:Row,1:Col);
+%para=sum(output(:).^2)/sum((img(:)-output(:)).^2);
+end
+
+%约束最小二乘滤波器
+function output=yueshuu(img,H,mean,var)
+[Row,Col]=size(img);
+cal=(Row/2)*(Col/2)*(mean^2+var);
+T=fft2([0,-1,0;-1,4,-1;0,-1,0],Row,Col);
+alpha=0.2;
+delta=0.01;
+step=0.001;
+while 1
+    F=conj(H)./(conj(H).*H+alpha*conj(T).*T).*img;
+    FF=img-H.*F;
+    f=real(ifft2(FF));
+    f=f(1:(Row/2),1:(Col/2));
+    square=sum(f(:).^2);
+    if abs(square-cal)<=delta
+        break;
+    elseif square<cal-delta
+        alpha=alpha+step;
+    else
+        alpha=alpha-step;
+    end
+end
+output=real(ifft2(F));
+output=output(1:(Row/2),1:(Col/2));
+end
+
+lenaa=(imread('lena.bmp'));
+img=im2double(lenaa);
+[Row,Col]=size(img);
+figure;
+subplot(2,3,1);imshow(img);title('原图像');
+
+[mohu_ed,H,freq]=mohu(img,Row,Col);
+subplot(2,3,2)
+imshow(mohu_ed);
+title('运动模糊后的图像');
+
+mean=0;%均值
+var=10/(Row*Col);%方差
+
+%加入高斯噪声
+[img_noise,img_noise_freq]=gauss_noise(freq,Row,Col,mean,var);
+subplot(2,3,3)
+imshow(img_noise);
+title('加入高斯噪声后的图像');
+
+
+
